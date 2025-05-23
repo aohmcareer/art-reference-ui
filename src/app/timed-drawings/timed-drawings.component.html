@@ -1,0 +1,68 @@
+<div class="timed-drawings-container">
+  <h2>Timed Drawings</h2>
+  
+  <div class="controls-main">
+    <div class="control-group">
+      <label for="duration">Time per image (seconds):</label>
+      <input type="number" id="duration" [(ngModel)]="duration" min="3" max="600" class="duration-input">
+    </div>
+    
+    <app-tag-filter (tagsSelected)="onTagsUpdated($event)" [externallySelectedTags]="activeTags"></app-tag-filter>
+    
+    <div class="control-group">
+      <label for="folderSelect">Select Folder (Optional):</label>
+      <select id="folderSelect" [(ngModel)]="selectedFolder" (change)="handleFilterChange()" class="folder-select">
+        <option value="">All Folders (matching tags)</option>
+        <option *ngFor="let folder of availableFolders" [value]="folder.name">
+          {{ folder.name }} ({{folder.imageCount}} images)
+        </option>
+      </select>
+    </div>
+
+    <div class="actions">
+      <!-- Corrected [disabled] condition -->
+      <button (click)="startSession()" [disabled]="isRunning || !duration || checkIsNaN(duration) || duration <= 0" class="btn btn-start">
+        {{ sessionEverStarted ? 'Resume' : 'Start' }} Session
+      </button>
+      <button (click)="nextImageManually()" [disabled]="!isRunning" class="btn btn-next">Next Image</button>
+      <button (click)="stopSession()" [disabled]="!isRunning" class="btn btn-stop">Pause Session</button>
+    </div>
+  </div>
+
+  <div class="image-display-area">
+    <div *ngIf="isLoading && !currentImage && !errorLoading" class="loading-placeholder">
+      <p>Loading first image...</p>
+    </div>
+
+    <div *ngIf="isLoading && currentImage" class="loading-overlay">
+      <p>Loading next image...</p>
+    </div>
+
+    <div *ngIf="currentImage" class="image-wrapper">
+      <div class="timer-info" *ngIf="isRunning">
+        Time remaining: <span class="time-left">{{ timeLeft }}s</span>
+      </div>
+      <img [src]="apiService.imageServerBaseUrl + currentImage.url" 
+           [alt]="currentImage.fileName" 
+           (load)="imageLoaded()" 
+           (error)="imageLoadError()"
+           [class.fade-in]="imageVisible"
+           class="gesture-image">
+      <p class="image-details">{{currentImage.folderName}} / {{currentImage.fileName}}</p>
+    </div>
+
+    <div *ngIf="errorLoading && !currentImage" class="error-message">
+      <p>{{ errorLoading }}</p>
+      <p *ngIf="isRunning && errorLoading !== 'No images match the current filter criteria.' && errorLoading !== 'Please enter a valid duration greater than 0.'">Attempting to load another image shortly...</p>
+    </div>
+     
+    <div *ngIf="!isLoading && !currentImage && !errorLoading && (isRunning || sessionEverStarted) && !sessionStateService.getViewedImages().length && !activeTags.length && !selectedFolder" class="error-message">
+      <p>No images found. Please ensure images are available in the configured API path and your filters are not too restrictive.</p>
+    </div>
+  </div>
+
+  <div *ngIf="!isRunning && sessionStateService.getViewedImages().length > 0 && sessionEverStarted" class="summary-link">
+    <button routerLink="/summary" class="btn btn-summary">View Session Summary ({{sessionStateService.getViewedImages().length}} images)</button>
+    <button (click)="resetSessionAndFilters()" class="btn btn-reset">Reset Session & Filters</button>
+  </div>
+</div>

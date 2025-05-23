@@ -1,0 +1,16 @@
+<div class="tag-filter-container">
+  <h4>Filter by Tags</h4>
+  <input type="text" placeholder="Search tags..." [(ngModel)]="searchTerm" (input)="filterTags()" class="tag-search-input">
+  <div class="tag-list thin-scrollbar">
+    <label *ngFor="let tag of filteredAvailableTags" class="tag-checkbox">
+      <input type="checkbox" [value]="tag" [checked]="selectedTags.has(tag)" (change)="onTagChange(tag, $event)">
+      {{ tag }}
+    </label>
+    <p *ngIf="filteredAvailableTags.length === 0 && searchTerm">No tags match "{{searchTerm}}".</p>
+    <p *ngIf="allAvailableTags.length === 0 && !searchTerm">No tags available.</p>
+  </div>
+  <div class="tag-actions">
+    <button (click)="applySelection()" class="btn btn-primary">Apply Tags</button>
+    <button (click)="clearSelection()" class="btn btn-secondary">Clear Tags</button>
+  </div>
+</div>
