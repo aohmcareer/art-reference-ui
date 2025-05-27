@@ -5,7 +5,7 @@ This project consists of a .NET 8 API backend and an Angular (Standalone Compone
 ## Prerequisites
 
 1.  **.NET 8 SDK:** [Download and install](https://dotnet.microsoft.com/download/dotnet/8.0)
-2.  **Node.js and npm:** [Download and install](https://nodejs.org/) (LTS version recommended, e.g., 18.x or 20.x)
+2.  **Node.js and npm:** [Download and install](https://nodejs.org/) (LTS version recommended, e.g., 22.x)
 3.  **Angular CLI:** Install globally if you haven't: `npm install -g @angular/cli` (v17+ recommended for best standalone support)
 4.  **Code Editor:** Visual Studio Code, Visual Studio, or any preferred editor.
 
