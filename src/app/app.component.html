@@ -1,0 +1,16 @@
+<header class="app-header">
+  <h1>Art Reference Viewer</h1>
+  <nav class="app-nav">
+    <a routerLink="/timed-drawings" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Timed Drawings</a>
+    <a routerLink="/gallery" routerLinkActive="active-link">Image Gallery</a>
+    <a routerLink="/summary" routerLinkActive="active-link">Session Summary</a>
+  </nav>
+</header>
+
+<main class="app-content">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="app-footer">
+  <p>© {{currentYear}} Art Reference Viewer</p>
+</footer>

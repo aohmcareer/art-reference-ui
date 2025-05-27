@@ -1,0 +1,51 @@
+<div class="timed-drawings-container">
+  <h2>Timed Drawings</h2>
+  
+  <div class="controls-main">
+    <div class="control-group">
+      <label for="duration">Time per image (seconds):</label>
+      <input type="number" id="duration" [(ngModel)]="duration" class="duration-input">
+    </div>
+    
+    <app-tag-filter (tagsSelected)="onTagsUpdated($event)" [externallySelectedTags]="activeTags"></app-tag-filter>
+    
+    <div class="control-group">
+      <label for="folderSelect">Select Folder (Optional):</label>
+      <select id="folderSelect" [(ngModel)]="selectedFolder" (change)="handleFilterChange()" class="folder-select">
+        <option value="">All Folders (matching tags)</option>
+        <option *ngFor="let folder of availableFolders" [value]="folder.name">
+          {{ folder.name }} ({{folder.imageCount}} images)
+        </option>
+      </select>
+    </div>
+
+    <div class="actions">
+      <button (click)="startSession()" [disabled]="isRunning || !duration || checkIsNaN(duration) || duration <= 0" class="btn btn-start">
+        {{ sessionEverStarted ? 'Resume' : 'Start' }} Session
+      </button>
+    </div>
+  </div>
+
+  <app-fullscreen-image-modal 
+    *ngIf="showFullscreenModal && currentImage" 
+    [imageUrl]="apiService.imageServerBaseUrl + currentImage.url"
+    [imageVisible]="imageVisible"
+    [timeLeft]="timeLeft"
+    [isRunning]="isRunning"
+    [currentImage]="currentImage"
+    [isLoading]="isLoading"
+    [errorLoading]="errorLoading"
+    [sessionEverStarted]="sessionEverStarted"
+    [activeTags]="activeTags"
+    [selectedFolder]="selectedFolder"
+    [sessionStateService]="sessionStateService"
+    (closeModal)="closeFullscreenModal()"
+    (imageLoaded)="imageLoaded()"
+    (imageLoadError)="imageLoadError()"
+    (nextImageManually)="nextImageManually()"
+    (stopSession)="stopSession()"
+    (resumeSession)="resumeSession()"
+    (resetSessionAndFilters)="resetSessionAndFilters()"
+    (viewSessionSummary)="viewSessionSummary()">
+  </app-fullscreen-image-modal>
+</div>

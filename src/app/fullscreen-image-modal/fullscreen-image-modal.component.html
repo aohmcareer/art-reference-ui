@@ -1,0 +1,47 @@
+<div class="modal-overlay">
+  <div class="modal-header">
+    <div class="timer-info">
+      Time remaining: <span class="time-left">{{ timeLeft }}s</span>
+    </div>
+    <div class="modal-buttons">
+      <button (click)="onNextImageManually()" [disabled]="!isRunning" class="btn btn-next">Next Image</button>
+      <button 
+        (click)="isRunning ? onStopSession() : onResumeSession()" 
+        [disabled]="!sessionEverStarted || !currentImage" 
+        class="btn btn-stop">
+        {{ isRunning ? 'Pause Session' : 'Resume Session' }}
+      </button>
+      <button (click)="onViewSessionSummary()" [disabled]="sessionStateService.getViewedImages().length === 0" class="btn btn-summary">View Session Summary ({{sessionStateService.getViewedImages().length}} images)</button>
+      <button (click)="onResetSessionAndFilters()" class="btn btn-reset">Reset Session & Filters</button>
+      <button (click)="onClose()" class="btn btn-close-modal">Close</button>
+    </div>
+  </div>
+
+  <div class="modal-content">
+    <img [src]="imageUrl" 
+         alt="Fullscreen Image" 
+         class="fullscreen-image"
+         (load)="onImageLoad()" 
+         (error)="onImageError()"
+         [class.fade-in]="imageVisible">
+
+    <p class="image-details" *ngIf="currentImage">{{currentImage.folderName}} / {{currentImage.fileName}}</p>
+
+    <div *ngIf="isLoading && !currentImage && !errorLoading" class="loading-placeholder">
+      <p>Loading first image...</p>
+    </div>
+
+    <div *ngIf="isLoading && currentImage" class="loading-overlay">
+      <p>Loading next image...</p>
+    </div>
+
+    <div *ngIf="errorLoading && !currentImage" class="error-message">
+      <p>{{ errorLoading }}</p>
+      <p *ngIf="isRunning && errorLoading !== 'No images match the current filter criteria.' && errorLoading !== 'Please enter a valid duration greater than 0.'">Attempting to load another image shortly...</p>
+    </div>
+    
+    <div *ngIf="!isLoading && !currentImage && !errorLoading && (isRunning || sessionEverStarted) && !sessionStateService.getViewedImages().length && !activeTags.length && !selectedFolder" class="error-message">
+      <p>No images found. Please ensure images are available in the configured API path and your filters are not too restrictive.</p>
+    </div>
+  </div>
+</div>

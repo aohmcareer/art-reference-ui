@@ -1,0 +1,114 @@
+/* Reusing gallery styles for consistency, with minor adjustments if needed */
+.summary-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.summary-actions {
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  min-width: 150px;
+}
+.btn-primary { background-color: #007bff; color: white; }
+.btn-primary:hover:not(:disabled) { background-color: #0056b3; }
+.btn-danger { background-color: #dc3545; color: white; }
+.btn-danger:hover:not(:disabled) { background-color: #c82333; }
+.btn:disabled {
+  background-color: #ccc !important;
+  cursor: not-allowed !important;
+  color: #666 !important;
+}
+
+
+.status-message { /* For no-summary message */
+  text-align: center;
+  padding: 30px 0;
+  font-style: italic;
+  color: #555;
+  font-size: 1.1em;
+}
+
+.image-grid { /* Copied from gallery and potentially adjustments needed */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.image-item { /* Copied from gallery */
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s ease-in-out;
+}
+.image-item:hover {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.image-item a { /* Copied from gallery */
+  display: block;
+  background-color: #f0f0f0; /* Placeholder color */
+}
+
+.image-item img { /* Copied from gallery, height adjusted */
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.2s ease-in-out, opacity 0.3s ease-in-out;
+  opacity: 0.7;
+}
+.image-item img[loading="lazy"] {}
+.image-item img:not([loading="lazy"]),
+.image-item img[src]:not([src=""]) {
+    opacity: 1;
+}
+.image-item a:hover img { /* Copied from gallery */
+  transform: scale(1.05);
+}
+
+.image-caption { /* Copied from gallery, font-size adjusted */
+  font-size: 0.8em;
+  padding: 6px 8px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  color: #333;
+}
+
+.image-tags { /* Copied from gallery, font-size adjusted */
+  padding: 4px 8px 6px;
+  text-align: center;
+  font-size: 0.7em;
+  border-top: 1px solid #f0f0f0;
+}
+.tag-badge { /* Copied from gallery */
+  display: inline-block;
+  background-color: #e9ecef;
+  color: #495057;
+  padding: 2px 5px;
+  border-radius: 10px;
+  margin: 1px 2px;
+  font-size: 0.95em;
+}

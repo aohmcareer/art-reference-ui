@@ -1,0 +1,25 @@
+<div class="summary-container">
+  <h2>Session Summary</h2>
+  <div class="summary-actions">
+    <button routerLink="/timed-drawings" class="btn btn-primary">Start New Timed Session</button>
+    <button (click)="clearSummary()" *ngIf="viewedImages.length > 0" class="btn btn-danger">Clear This Summary</button>
+  </div>
+
+  <div *ngIf="viewedImages.length === 0" class="no-summary status-message">
+    No images viewed in the last session, or session was cleared.
+  </div>
+
+  <div class="image-grid" *ngIf="viewedImages.length > 0">
+    <div *ngFor="let image of viewedImages" class="image-item">
+       <a [href]="apiService.imageServerBaseUrl + image.url" target="_blank" title="Open image in new tab">
+        <img [src]="apiService.imageServerBaseUrl + image.url" 
+             [alt]="image.fileName"
+             loading="lazy">
+      </a>
+      <p class="image-caption" title="{{ image.folderName }}/{{ image.fileName }}">{{ image.folderName }}/{{ image.fileName }}</p>
+       <div *ngIf="image.tags && image.tags.length > 0" class="image-tags">
+        <span *ngFor="let tag of image.tags" class="tag-badge">{{tag}}</span>
+      </div>
+    </div>
+  </div>
+</div>
