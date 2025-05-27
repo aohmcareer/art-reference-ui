@@ -22,5 +22,5 @@ You'll need two terminal windows/tabs - or as I run it, the API within Visual St
 ### Terminal 2: Run the Angular Frontend
 
 1.  Navigate to `ArtReferenceViewerProject/art-reference-ui`.
-2.  Run: `ng serve --open`
+2.  Run: `npm start` (uses package.json for some local cross-env settings for hitting the .NET 8 API)
     (Usually on `http://localhost:4200`)
