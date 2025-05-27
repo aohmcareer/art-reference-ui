@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { Subject, Subscription, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Howl } from 'howler';
 
 import { ApiService, ImageInfo, FolderInfo } from '../services/api.service';
 import { SessionStateService } from '../services/session-state.service';
@@ -37,6 +38,7 @@ export class TimedDrawingsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private timerSubscription?: Subscription;
   private imageLoadTimeoutSubscription?: Subscription;
+  private chimeSound: Howl;
 
   activeTags: string[] = [];
   availableFolders: FolderInfo[] = [];
@@ -46,7 +48,13 @@ export class TimedDrawingsComponent implements OnInit, OnDestroy {
     public apiService: ApiService,
     public sessionStateService: SessionStateService,
     private router: Router
-  ) {}
+  ) {
+    // Initialize chimeSound
+    this.chimeSound = new Howl({
+      src: ['/chime.mp3'], // Local chime sound file in public/ directory
+      html5: true
+    });
+  }
 
   ngOnInit(): void {
     this.loadAvailableFolders();
@@ -234,12 +242,22 @@ export class TimedDrawingsComponent implements OnInit, OnDestroy {
     this.timerSubscription = timer(0, 1000).pipe(takeUntil(this.destroy$)).subscribe(() => {
       if (this.timeLeft > 0) {
         this.timeLeft--;
+        // Play chime at 10, 3, 2, 1 seconds remaining
+        if ([10, 3, 2, 1].includes(this.timeLeft)) {
+          this.playChime();
+        }
       } else {
         if (this.isRunning) { 
             this.loadNewImage();
         }
       }
     });
+  }
+
+  private playChime(): void {
+    if (this.chimeSound) {
+      this.chimeSound.play();
+    }
   }
 
   closeFullscreenModal(): void {
