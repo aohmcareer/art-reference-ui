@@ -1,16 +1,19 @@
-<header class="app-header">
-  <h1>Art Reference Viewer</h1>
-  <nav class="app-nav">
-    <a routerLink="/timed-drawings" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Timed Drawings</a>
-    <a routerLink="/gallery" routerLinkActive="active-link">Image Gallery</a>
-    <a routerLink="/summary" routerLinkActive="active-link">Session Summary</a>
-  </nav>
-</header>
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <span>Art Reference Viewer</span>
+    <span class="spacer"></span>
+    <a mat-button routerLink="/timed-drawings" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Timed Drawings</a>
+    <a mat-button routerLink="/gallery" routerLinkActive="active-link">Image Gallery</a>
+    <a mat-button routerLink="/summary" routerLinkActive="active-link">Session Summary</a>
+  </mat-toolbar-row>
+</mat-toolbar>
 
-<main class="app-content">
+<div class="container-fluid mt-3">
   <router-outlet></router-outlet>
-</main>
+</div>
 
-<footer class="app-footer">
-  <p>© {{currentYear}} Art Reference Viewer</p>
+<footer class="footer mt-auto py-3 bg-light">
+  <div class="container">
+    <p class="text-muted">© {{currentYear}} Art Reference Viewer</p>
+  </div>
 </footer>

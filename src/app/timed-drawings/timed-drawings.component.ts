@@ -1,10 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subject, Subscription, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Howl } from 'howler';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 import { ApiService, ImageInfo, FolderInfo } from '../services/api.service';
 import { SessionStateService } from '../services/session-state.service';
@@ -17,9 +22,13 @@ import { FullscreenImageModalComponent } from '../fullscreen-image-modal/fullscr
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     TagFilterComponent,
-    FullscreenImageModalComponent
+    FullscreenImageModalComponent,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule
   ],
   templateUrl: './timed-drawings.component.html',
   styleUrls: ['./timed-drawings.component.css']

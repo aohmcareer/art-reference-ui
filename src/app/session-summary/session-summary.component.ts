@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 import { SessionStateService } from '../services/session-state.service';
 import { ApiService, ImageInfo } from '../services/api.service';
@@ -8,7 +10,12 @@ import { ApiService, ImageInfo } from '../services/api.service';
 @Component({
   selector: 'app-session-summary',
   standalone: true,
-  imports: [ CommonModule, RouterLink ],
+  imports: [ 
+    CommonModule, 
+    RouterLink,
+    MatButtonModule,
+    MatCardModule
+  ],
   templateUrl: './session-summary.component.html',
   styleUrls: ['./session-summary.component.css']
 })

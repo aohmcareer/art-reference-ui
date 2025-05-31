@@ -1,53 +1,63 @@
-<div class="gallery-container">
-  <h2>Image Gallery</h2>
-  
-  <div class="gallery-controls">
-    <app-tag-filter (tagsSelected)="onTagsUpdated($event)" [externallySelectedTags]="activeTags"></app-tag-filter>
-
-    <div class="control-group">
-      <label for="folderGallerySelect">Filter by Folder (Optional):</label>
-      <select id="folderGallerySelect" [(ngModel)]="selectedFolder" (change)="resetAndLoadImages()" class="folder-select">
-        <option value="">All Folders (matching tags)</option>
-        <option *ngFor="let folder of availableFolders" [value]="folder.name">
-          {{ folder.name }} ({{folder.imageCount}} images)
-        </option>
-      </select>
-    </div>
-  </div>
+<div class="container mt-4">
+  <mat-card class="mb-4">
+    <mat-card-title>Image Gallery</mat-card-title>
+    <mat-card-content>
+      <div class="row align-items-center">
+        <div class="col-md-6 mb-3">
+          <app-tag-filter (tagsSelected)="onTagsUpdated($event)" [externallySelectedTags]="activeTags"></app-tag-filter>
+        </div>
+        <div class="col-md-6 mb-3">
+          <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Filter by Folder (Optional)</mat-label>
+            <mat-select [(ngModel)]="selectedFolder" (selectionChange)="resetAndLoadImages()">
+              <mat-option value="">All Folders (matching tags)</mat-option>
+              <mat-option *ngFor="let folder of availableFolders" [value]="folder.name">
+                {{ folder.name }} ({{folder.imageCount}} images)
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
 
   <div 
-    class="image-grid"
+    class="row"
     infiniteScroll
     [infiniteScrollDistance]="2" 
     [infiniteScrollThrottle]="300"
     (scrolled)="onScroll()"
     [scrollWindow]="true"
     [immediateCheck]="false">
-    <div *ngFor="let image of images" class="image-item">
-      <a [href]="apiService.imageServerBaseUrl + image.url" target="_blank" title="Open image in new tab">
-        <img [src]="apiService.imageServerBaseUrl + image.url" 
-             [alt]="image.fileName" 
-             loading="lazy"
-             (error)="onImageError($event, image)">
-      </a>
-      <p class="image-caption" title="{{ image.folderName }}/{{ image.fileName }}">{{ image.folderName }}/{{ image.fileName }}</p>
-      <div *ngIf="image.tags && image.tags.length > 0" class="image-tags">
-        <span *ngFor="let tag of image.tags" class="tag-badge">{{tag}}</span>
-      </div>
+    <div *ngFor="let image of images" class="col-6 col-md-4 col-lg-3 mb-4">
+      <mat-card class="image-card">
+        <a [href]="apiService.imageServerBaseUrl + image.url" target="_blank" title="Open image in new tab">
+          <img mat-card-image [src]="apiService.imageServerBaseUrl + image.url" 
+               [alt]="image.fileName" 
+               loading="lazy"
+               (error)="onImageError($event, image)">
+        </a>
+        <mat-card-content>
+          <p class="text-muted text-truncate" title="{{ image.folderName }}/{{ image.fileName }}">{{ image.folderName }}/{{ image.fileName }}</p>
+          <div *ngIf="image.tags && image.tags.length > 0">
+            <span *ngFor="let tag of image.tags" class="badge bg-info text-dark me-1">{{tag}}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
   </div>
 
-  <div *ngIf="isLoading && images.length > 0" class="status-message loading-more">
-    <div class="spinner"></div> Loading more images...
+  <div *ngIf="isLoading && images.length > 0" class="alert alert-info text-center mt-3">
+    <mat-spinner [diameter]="20"></mat-spinner> Loading more images...
   </div>
-  <div *ngIf="isLoading && images.length === 0 && !initialLoadFailed" class="status-message loading-initial">
-    <div class="spinner"></div> Loading images...
+  <div *ngIf="isLoading && images.length === 0 && !initialLoadFailed" class="alert alert-info text-center mt-3">
+    <mat-spinner [diameter]="20"></mat-spinner> Loading images...
   </div>
-  <div *ngIf="!isLoading && images.length === 0 && (initialLoadDone || initialLoadFailed)" class="status-message no-images">
+  <div *ngIf="!isLoading && images.length === 0 && (initialLoadDone || initialLoadFailed)" class="alert alert-warning text-center mt-3">
     <p *ngIf="initialLoadFailed">Failed to load images. Please try again later or check the browser console for errors.</p>
     <p *ngIf="!initialLoadFailed">No images found for the selected criteria. Try adjusting your filters or ensure images are available on the server.</p>
   </div>
-  <div *ngIf="allLoaded && images.length > 0 && !isLoading" class="status-message all-loaded">
+  <div *ngIf="allLoaded && images.length > 0 && !isLoading" class="alert alert-success text-center mt-3">
     All images loaded.
   </div>
 </div>

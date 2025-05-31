@@ -1,12 +1,25 @@
 import { Component, EventEmitter, OnInit, Output, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule, MatCheckboxChange } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-tag-filter',
   standalone: true,
-  imports: [ CommonModule, FormsModule ],
+  imports: [ 
+    CommonModule, 
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatCardModule
+  ],
   templateUrl: './tag-filter.component.html',
   styleUrls: ['./tag-filter.component.css']
 })
@@ -51,9 +64,8 @@ export class TagFilterComponent implements OnInit, OnChanges {
     }
   }
 
-  onTagChange(tag: string, event: Event): void {
-    const checkbox = event.target as HTMLInputElement;
-    if (checkbox.checked) {
+  onTagChange(tag: string, event: MatCheckboxChange): void {
+    if (event.checked) {
       this.selectedTags.add(tag);
     } else {
       this.selectedTags.delete(tag);

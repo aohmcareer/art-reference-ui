@@ -2,14 +2,18 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageInfo, FolderInfo, ApiService } from '../services/api.service';
 import { SessionStateService } from '../services/session-state.service';
-import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-fullscreen-image-modal',
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './fullscreen-image-modal.component.html',
   styleUrls: ['./fullscreen-image-modal.component.css']

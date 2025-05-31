@@ -4,6 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { ApiService, ImageInfo, FolderInfo } from '../services/api.service';
 import { TagFilterComponent } from '../tag-filter/tag-filter.component';
@@ -15,7 +19,11 @@ import { TagFilterComponent } from '../tag-filter/tag-filter.component';
     CommonModule,
     FormsModule,
     InfiniteScrollModule,
-    TagFilterComponent
+    TagFilterComponent,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatCardModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './image-gallery.component.html',
   styleUrls: ['./image-gallery.component.css']
