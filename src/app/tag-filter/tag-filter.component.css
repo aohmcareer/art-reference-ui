@@ -1,37 +1,7 @@
-.tag-filter-container {
-  border: 1px solid #ccc;
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-.tag-filter-container h4 { margin-top: 0; margin-bottom: 10px; }
-.tag-search-input {
-  width: calc(100% - 22px);
-  padding: 8px 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
 .tag-list {
   max-height: 150px;
   overflow-y: auto;
-  margin-bottom: 15px;
   border: 1px solid #eee;
   padding: 10px;
   background-color: white;
 }
-.tag-checkbox { display: block; margin-bottom: 8px; cursor: pointer; font-size: 0.95em; }
-.tag-checkbox input[type="checkbox"] { margin-right: 8px; vertical-align: middle; }
-.tag-actions { display: flex; gap: 10px; }
-.tag-actions .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
-.btn-primary { background-color: #007bff; color: white; }
-.btn-primary:hover:not(:disabled) { background-color: #0056b3; }
-.btn-secondary { background-color: #6c757d; color: white; }
-.btn-secondary:hover:not(:disabled) { background-color: #545b62; }
-/* Simple thin scrollbar for webkit browsers */
-.thin-scrollbar::-webkit-scrollbar { width: 8px; }
-.thin-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-.thin-scrollbar::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
-.thin-scrollbar::-webkit-scrollbar-thumb:hover { background: #aaa; }

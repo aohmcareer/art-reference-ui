@@ -1,25 +1,33 @@
-<div class="summary-container">
-  <h2>Session Summary</h2>
-  <div class="summary-actions">
-    <button routerLink="/timed-drawings" class="btn btn-primary">Start New Timed Session</button>
-    <button (click)="clearSummary()" *ngIf="viewedImages.length > 0" class="btn btn-danger">Clear This Summary</button>
-  </div>
-
-  <div *ngIf="viewedImages.length === 0" class="no-summary status-message">
-    No images viewed in the last session, or session was cleared.
-  </div>
-
-  <div class="image-grid" *ngIf="viewedImages.length > 0">
-    <div *ngFor="let image of viewedImages" class="image-item">
-       <a [href]="apiService.imageServerBaseUrl + image.url" target="_blank" title="Open image in new tab">
-        <img [src]="apiService.imageServerBaseUrl + image.url" 
-             [alt]="image.fileName"
-             loading="lazy">
-      </a>
-      <p class="image-caption" title="{{ image.folderName }}/{{ image.fileName }}">{{ image.folderName }}/{{ image.fileName }}</p>
-       <div *ngIf="image.tags && image.tags.length > 0" class="image-tags">
-        <span *ngFor="let tag of image.tags" class="tag-badge">{{tag}}</span>
+<div class="container mt-4">
+  <mat-card class="mb-4">
+    <mat-card-title>Session Summary</mat-card-title>
+    <mat-card-content>
+      <div class="d-flex justify-content-center gap-2 mb-3">
+        <button mat-raised-button color="primary" routerLink="/timed-drawings">Start New Timed Session</button>
+        <button mat-raised-button color="warn" (click)="clearSummary()" *ngIf="viewedImages.length > 0">Clear This Summary</button>
       </div>
-    </div>
-  </div>
+
+      <div *ngIf="viewedImages.length === 0" class="alert alert-info text-center">
+        No images viewed in the last session, or session was cleared.
+      </div>
+
+      <div class="row" *ngIf="viewedImages.length > 0">
+        <div *ngFor="let image of viewedImages" class="col-6 col-md-4 col-lg-3 mb-4">
+          <mat-card class="image-card">
+            <a [href]="apiService.imageServerBaseUrl + image.url" target="_blank" title="Open image in new tab">
+              <img mat-card-image [src]="apiService.imageServerBaseUrl + image.url" 
+                   [alt]="image.fileName"
+                   loading="lazy">
+            </a>
+            <mat-card-content>
+              <p class="text-muted text-truncate" title="{{ image.folderName }}/{{ image.fileName }}">{{ image.folderName }}/{{ image.fileName }}</p>
+              <div *ngIf="image.tags && image.tags.length > 0">
+                <span *ngFor="let tag of image.tags" class="badge bg-info text-dark me-1">{{tag}}</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

@@ -1,30 +1,41 @@
-<div class="timed-drawings-container">
-  <h2>Timed Drawings</h2>
-  
-  <div class="controls-main">
-    <div class="control-group">
-      <label for="duration">Time per image (seconds):</label>
-      <input type="number" id="duration" [(ngModel)]="duration" class="duration-input">
-    </div>
-    
-    <app-tag-filter (tagsSelected)="onTagsUpdated($event)" [externallySelectedTags]="activeTags"></app-tag-filter>
-    
-    <div class="control-group">
-      <label for="folderSelect">Select Folder (Optional):</label>
-      <select id="folderSelect" [(ngModel)]="selectedFolder" (change)="handleFilterChange()" class="folder-select">
-        <option value="">All Folders (matching tags)</option>
-        <option *ngFor="let folder of availableFolders" [value]="folder.name">
-          {{ folder.name }} ({{folder.imageCount}} images)
-        </option>
-      </select>
-    </div>
+<div class="container mt-4">
+  <mat-card>
+    <mat-card-title>Timed Drawings</mat-card-title>
+    <mat-card-content>
+      <div class="row">
+        <div class="col-md-6 col-lg-4 mb-3">
+          <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Time per image (seconds)</mat-label>
+            <input matInput type="number" [(ngModel)]="duration">
+          </mat-form-field>
+        </div>
+        
+        <div class="col-md-6 col-lg-4 mb-3">
+          <app-tag-filter (tagsSelected)="onTagsUpdated($event)" [externallySelectedTags]="activeTags"></app-tag-filter>
+        </div>
+        
+        <div class="col-md-6 col-lg-4 mb-3">
+          <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Select Folder (Optional)</mat-label>
+            <mat-select [(ngModel)]="selectedFolder" (selectionChange)="handleFilterChange()">
+              <mat-option value="">All Folders (matching tags)</mat-option>
+              <mat-option *ngFor="let folder of availableFolders" [value]="folder.name">
+                {{ folder.name }} ({{folder.imageCount}} images)
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
 
-    <div class="actions">
-      <button (click)="startSession()" [disabled]="isRunning || !duration || checkIsNaN(duration) || duration <= 0" class="btn btn-start">
-        {{ sessionEverStarted ? 'Resume' : 'Start' }} Session
-      </button>
-    </div>
-  </div>
+      <div class="row mt-3">
+        <div class="col-12 text-center">
+          <button mat-raised-button color="primary" (click)="startSession()" [disabled]="isRunning || !duration || checkIsNaN(duration) || duration <= 0">
+            {{ sessionEverStarted ? 'Resume' : 'Start' }} Session
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
 
   <app-fullscreen-image-modal 
     *ngIf="showFullscreenModal && currentImage" 
