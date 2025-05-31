@@ -10,6 +10,38 @@
 
 .fullscreen-image {
   max-width: 100%;
-  max-height: 100%;
+  max-height: calc(100vh - 50px); /* Adjust based on new header height of around 50px*/
   object-fit: contain;
+}
+
+.loading-placeholder,
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Ensure it can take up space if needed */
+  width: 100%;
+  position: absolute; /* To overlay on top of image area if needed */
+  top: 0;
+  left: 0;
+  background-color: rgba(248, 249, 250, 0.8); /* bg-light with some transparency */
+}
+
+.loading-overlay { /* Specific for when an image was previously shown */
+  background-color: rgba(0, 0, 0, 0.5); /* Darker overlay when loading next image */
+  color: white;
+}
+
+.image-details {
+  font-size: 0.9rem;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

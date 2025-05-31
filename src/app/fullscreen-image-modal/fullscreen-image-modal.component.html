@@ -1,14 +1,14 @@
 <div class="modal-overlay d-flex flex-column">
-  <div class="modal-header d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+  <div class="modal-header d-flex justify-content-between align-items-center px-2 py-1 bg-dark text-white">
     <div class="timer-info fs-5">
       Time remaining: <span class="time-left fw-bold">{{ timeLeft }}s</span>
     </div>
-    <div class="modal-buttons d-flex gap-2">
+    <div class="modal-buttons d-flex align-items-center gap-2">
       <button mat-raised-button color="accent" (click)="onNextImageManually()" [disabled]="!isRunning">Next Image</button>
-      <button 
-        mat-raised-button 
+      <button
+        mat-raised-button
         [color]="isRunning ? 'warn' : 'primary'"
-        (click)="isRunning ? onStopSession() : onResumeSession()" 
+        (click)="isRunning ? onStopSession() : onResumeSession()"
         [disabled]="!sessionEverStarted || !currentImage">
         {{ isRunning ? 'Pause Session' : 'Resume Session' }}
       </button>
@@ -20,11 +20,11 @@
     </div>
   </div>
 
-  <div class="modal-content flex-grow-1 d-flex flex-column justify-content-center align-items-center bg-light">
-    <img [src]="imageUrl" 
-         alt="Fullscreen Image" 
+  <div class="modal-content flex-grow-1 d-flex flex-column align-items-center bg-light">
+    <img [src]="imageUrl"
+         alt="Fullscreen Image"
          class="fullscreen-image img-fluid"
-         (load)="onImageLoad()" 
+         (load)="onImageLoad()"
          (error)="onImageError()"
          [class.fade-in]="imageVisible">
 
