@@ -2,6 +2,32 @@
   flex: 1 1 auto;
 }
 
+.sidenav-container {
+  height: 100vh;
+}
+
+.sidenav {
+  width: 200px;
+}
+
+.menu-icon {
+  display: none; /* Hidden by default on larger screens */
+}
+
+.desktop-links {
+  display: flex; /* Shown by default on larger screens */
+}
+
+@media (max-width: 768px) {
+  .menu-icon {
+    display: block; /* Show on small screens */
+  }
+
+  .desktop-links {
+    display: none; /* Hide on small screens */
+  }
+}
+
 .footer {
   position: fixed;
   bottom: 0;
