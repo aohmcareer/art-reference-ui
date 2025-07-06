@@ -33,10 +33,10 @@
         <mat-card-content>
           <p class="text-muted text-truncate" title="{{ image.folderName }}/{{ image.fileName }}">{{ image.folderName }}/{{ image.fileName }}</p>
           <div *ngIf="image.tags && image.tags.length > 0" 
-               class="tags-wrapper" 
-               [matTooltip]="image.tags.join(', ')" 
-               matTooltipPosition="above">
-            <span *ngFor="let tag of image.displayTags" class="badge bg-info text-dark me-1">{{tag}}</span>
+               class="tags-wrapper tags-fade-container">
+            <div class="tags-scroll-content">
+              <span *ngFor="let tag of image.tags" class="badge bg-info text-dark me-1">{{tag}}</span>
+            </div>
           </div>
         </mat-card-content>
       </mat-card>

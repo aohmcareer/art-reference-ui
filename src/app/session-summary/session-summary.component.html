@@ -21,8 +21,11 @@
             </a>
             <mat-card-content>
               <p class="text-muted text-truncate" title="{{ image.folderName }}/{{ image.fileName }}">{{ image.folderName }}/{{ image.fileName }}</p>
-              <div *ngIf="image.tags && image.tags.length > 0">
-                <span *ngFor="let tag of image.tags" class="badge bg-info text-dark me-1">{{tag}}</span>
+              <div *ngIf="image.tags && image.tags.length > 0"
+                   class="tags-wrapper tags-fade-container">
+                <div class="tags-scroll-content">
+                  <span *ngFor="let tag of image.tags" class="badge bg-info text-dark me-1">{{tag}}</span>
+                </div>
               </div>
             </mat-card-content>
           </mat-card>

@@ -12,13 +12,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApiService, ImageInfo, FolderInfo } from '../services/api.service';
 import { TagFilterComponent } from '../tag-filter/tag-filter.component';
 
-// Extend ImageInfo for gallery-specific display properties with truncation
-interface TruncatedImageInfo extends ImageInfo {
-  displayTags: string[];
-}
-
-const MAX_TAGS_FIRST_LINE = 4;
-
 @Component({
   selector: 'app-image-gallery',
   standalone: true,
@@ -36,7 +29,7 @@ const MAX_TAGS_FIRST_LINE = 4;
   styleUrls: ['./image-gallery.component.css']
 })
 export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
-  images: TruncatedImageInfo[] = [];
+  images: ImageInfo[] = [];
   currentPage: number = 1;
   pageSize: number = 24; 
   isLoading: boolean = false;
@@ -117,22 +110,9 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
         next: result => {
           if (result.items.length > 0) {
             // Filter out duplicates just in case (e.g., rapid scrolling/re-filtering)
-            const processedNewImages: TruncatedImageInfo[] = result.items.map(newItem => {
-              const truncatedImage: TruncatedImageInfo = {
-                ...newItem,
-                displayTags: []
-              };
-
-              if (newItem.tags.length > MAX_TAGS_FIRST_LINE) {
-                truncatedImage.displayTags = newItem.tags.slice(0, MAX_TAGS_FIRST_LINE - 1);
-                truncatedImage.displayTags.push('...'); // Add the ellipsis tag
-              } else {
-                truncatedImage.displayTags = [...newItem.tags];
-              }
-              return truncatedImage;
-            }).filter(processedItem =>
+            const processedNewImages: ImageInfo[] = result.items.filter(newItem =>
                 !this.images.some(existingItem =>
-                    existingItem.url === processedItem.url && existingItem.folderName === processedItem.folderName
+                    existingItem.url === newItem.url && existingItem.folderName === newItem.folderName
                 )
             );
 
