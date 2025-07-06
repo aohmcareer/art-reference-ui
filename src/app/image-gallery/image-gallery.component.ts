@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, NgZone, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, NgZone, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -46,7 +46,12 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
   availableFolders: FolderInfo[] = [];
   selectedFolder: string = "";
 
-  constructor(public apiService: ApiService, private zone: NgZone, private cdr: ChangeDetectorRef) { }
+  constructor(
+    public apiService: ApiService,
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) { }
 
   ngOnInit(): void {
     this.loadAvailableFolders();
@@ -54,7 +59,9 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.setupIntersectionObserver();
+    if (isPlatformBrowser(this.platformId)) {
+      this.setupIntersectionObserver();
+    }
   }
   
   loadAvailableFolders(): void {
@@ -83,7 +90,7 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.initialLoadFailed = false;
     this.isLoading = false;
     // Re-observe the trigger after resetting images
-    if (this.intersectionObserver) {
+    if (isPlatformBrowser(this.platformId) && this.intersectionObserver) {
       this.intersectionObserver.unobserve(this.scrollTrigger.nativeElement);
       this.intersectionObserver.observe(this.scrollTrigger.nativeElement);
     }
@@ -124,7 +131,7 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
           if (result.items.length === 0) {
             this.allLoaded = true;
             // If all loaded, stop observing
-            if (this.intersectionObserver) {
+            if (isPlatformBrowser(this.platformId) && this.intersectionObserver) {
               this.intersectionObserver.unobserve(this.scrollTrigger.nativeElement);
             }
           }
@@ -133,7 +140,7 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
           this.initialLoadDone = true;
           // After initial load (page 2 completed), if the page is now scrollable, ensure observer is active
           // This helps if the initial load didn't fill the screen, but subsequent loads do.
-          if (this.currentPage === 2 && this.intersectionObserver && this.scrollTrigger) {
+          if (this.currentPage === 2 && isPlatformBrowser(this.platformId) && this.intersectionObserver && this.scrollTrigger) {
             this.intersectionObserver.unobserve(this.scrollTrigger.nativeElement);
             this.intersectionObserver.observe(this.scrollTrigger.nativeElement);
           }
@@ -141,7 +148,7 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
         error: err => {
           console.error('Error loading gallery images:', err);
           this.isLoading = false;
-          this.initialLoadDone = true; // Mark as done even on error to show message
+          this.initialLoadDone = true;
           if (this.currentPage === 1) {
               this.initialLoadFailed = true;
           }
@@ -150,37 +157,38 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private setupIntersectionObserver(): void {
-    const options = {
-      root: null, // Use the viewport as the root
-      rootMargin: '0px',
-      threshold: 0 // Trigger when any part of the target is visible
-    };
+    if (isPlatformBrowser(this.platformId)) {
+      const options = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0
+      };
 
-    this.intersectionObserver = new IntersectionObserver((entries) => {
-      this.zone.run(() => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && !this.isLoading && !this.allLoaded) {
-            console.log('Scroll trigger element is visible. Loading more images...');
-            this.loadImages();
-          }
+      this.intersectionObserver = new IntersectionObserver((entries) => {
+        this.zone.run(() => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && !this.isLoading && !this.allLoaded) {
+              console.log('Scroll trigger element is visible. Loading more images...');
+              this.loadImages();
+            }
+          });
         });
-      });
-    }, options);
+      }, options);
 
-    if (this.scrollTrigger) {
-      this.intersectionObserver.observe(this.scrollTrigger.nativeElement);
+      if (this.scrollTrigger) {
+        this.intersectionObserver.observe(this.scrollTrigger.nativeElement);
+      }
     }
   }
 
   onImageError(event: Event, image: ImageInfo) {
     console.warn(`Failed to load image: ${this.apiService.imageServerBaseUrl + image.url}`);
     const imgElement = event.target as HTMLImageElement;
-    // Down the road, replace with a placeholder image or style?
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
-    if (this.intersectionObserver) {
+    if (isPlatformBrowser(this.platformId) && this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
     this.destroy$.complete();
