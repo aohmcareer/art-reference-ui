@@ -1,13 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ApiService, ImageInfo, FolderInfo } from '../services/api.service';
 import { TagFilterComponent } from '../tag-filter/tag-filter.component';
@@ -18,17 +18,17 @@ import { TagFilterComponent } from '../tag-filter/tag-filter.component';
   imports: [
     CommonModule,
     FormsModule,
-    InfiniteScrollModule,
     TagFilterComponent,
     MatFormFieldModule,
     MatSelectModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './image-gallery.component.html',
   styleUrls: ['./image-gallery.component.css']
 })
-export class ImageGalleryComponent implements OnInit, OnDestroy {
+export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
   images: ImageInfo[] = [];
   currentPage: number = 1;
   pageSize: number = 24; 
@@ -38,16 +38,23 @@ export class ImageGalleryComponent implements OnInit, OnDestroy {
   initialLoadFailed: boolean = false;
 
   private destroy$ = new Subject<void>();
+  private intersectionObserver: IntersectionObserver | undefined;
+
+  @ViewChild('scrollTrigger') scrollTrigger!: ElementRef;
 
   activeTags: string[] = [];
   availableFolders: FolderInfo[] = [];
   selectedFolder: string = "";
 
-  constructor(public apiService: ApiService) { }
+  constructor(public apiService: ApiService, private zone: NgZone, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.loadAvailableFolders();
     this.loadImages();
+  }
+
+  ngAfterViewInit(): void {
+    this.setupIntersectionObserver();
   }
   
   loadAvailableFolders(): void {
@@ -62,6 +69,7 @@ export class ImageGalleryComponent implements OnInit, OnDestroy {
   }
 
   onTagsUpdated(tags: string[]): void {
+    console.log('onTagsUpdated: Resetting and loading images for tags:', tags);
     this.activeTags = tags;
     this.loadAvailableFolders();
     this.resetAndLoadImages();
@@ -74,13 +82,12 @@ export class ImageGalleryComponent implements OnInit, OnDestroy {
     this.initialLoadDone = false;
     this.initialLoadFailed = false;
     this.isLoading = false;
-    // Brief timeout to allow UI to reflect reset before new load starts
-    // and to prevent multiple rapid calls if filters change quickly
-    setTimeout(() => {
-        if (!this.isLoading) { // Double check not already loading from another source
-            this.loadImages();
-        }
-    }, 100); 
+    // Re-observe the trigger after resetting images
+    if (this.intersectionObserver) {
+      this.intersectionObserver.unobserve(this.scrollTrigger.nativeElement);
+      this.intersectionObserver.observe(this.scrollTrigger.nativeElement);
+    }
+    this.loadImages();
   }
 
   loadImages(): void {
@@ -103,20 +110,33 @@ export class ImageGalleryComponent implements OnInit, OnDestroy {
         next: result => {
           if (result.items.length > 0) {
             // Filter out duplicates just in case (e.g., rapid scrolling/re-filtering)
-            const newImages = result.items.filter(newItem => 
-                !this.images.some(existingItem => 
+            const processedNewImages: ImageInfo[] = result.items.filter(newItem =>
+                !this.images.some(existingItem =>
                     existingItem.url === newItem.url && existingItem.folderName === newItem.folderName
                 )
             );
-            this.images = [...this.images, ...newImages];
+
+            this.images = [...this.images, ...processedNewImages];
             this.currentPage++;
           }
           // Check if all images are loaded
-          if (this.images.length >= result.totalCount || (result.items.length === 0 && this.currentPage > 1) || (result.totalCount === 0) ) {
+          // Only set allLoaded to true if the current API call returns no items.
+          if (result.items.length === 0) {
             this.allLoaded = true;
+            // If all loaded, stop observing
+            if (this.intersectionObserver) {
+              this.intersectionObserver.unobserve(this.scrollTrigger.nativeElement);
+            }
           }
+          this.cdr.detectChanges();
           this.isLoading = false;
           this.initialLoadDone = true;
+          // After initial load (page 2 completed), if the page is now scrollable, ensure observer is active
+          // This helps if the initial load didn't fill the screen, but subsequent loads do.
+          if (this.currentPage === 2 && this.intersectionObserver && this.scrollTrigger) {
+            this.intersectionObserver.unobserve(this.scrollTrigger.nativeElement);
+            this.intersectionObserver.observe(this.scrollTrigger.nativeElement);
+          }
         }, 
         error: err => {
           console.error('Error loading gallery images:', err);
@@ -129,9 +149,26 @@ export class ImageGalleryComponent implements OnInit, OnDestroy {
       });
   }
 
-  onScroll(): void {
-    if (!this.isLoading && !this.allLoaded && this.initialLoadDone) { // Only load if not already loading, not all loaded, and initial load attempt is done
-        this.loadImages();
+  private setupIntersectionObserver(): void {
+    const options = {
+      root: null, // Use the viewport as the root
+      rootMargin: '0px',
+      threshold: 0 // Trigger when any part of the target is visible
+    };
+
+    this.intersectionObserver = new IntersectionObserver((entries) => {
+      this.zone.run(() => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !this.isLoading && !this.allLoaded) {
+            console.log('Scroll trigger element is visible. Loading more images...');
+            this.loadImages();
+          }
+        });
+      });
+    }, options);
+
+    if (this.scrollTrigger) {
+      this.intersectionObserver.observe(this.scrollTrigger.nativeElement);
     }
   }
 
@@ -143,6 +180,9 @@ export class ImageGalleryComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroy$.next();
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
     this.destroy$.complete();
   }
 }

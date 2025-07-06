@@ -1,8 +1,13 @@
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
 /* Global styles */
-body {
+html, body {
+  height: 100%;
   margin: 0;
+  overflow: auto;
+}
+
+body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   background-color: #e9ecef;
   color: #212529;

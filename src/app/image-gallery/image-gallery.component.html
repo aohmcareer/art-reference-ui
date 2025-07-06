@@ -21,14 +21,7 @@
     </mat-card-content>
   </mat-card>
 
-  <div 
-    class="row"
-    infiniteScroll
-    [infiniteScrollDistance]="2" 
-    [infiniteScrollThrottle]="300"
-    (scrolled)="onScroll()"
-    [scrollWindow]="true"
-    [immediateCheck]="false">
+  <div class="row">
     <div *ngFor="let image of images" class="col-6 col-md-4 col-lg-3 mb-4">
       <mat-card class="image-card">
         <a [href]="apiService.imageServerBaseUrl + image.url" target="_blank" title="Open image in new tab">
@@ -39,8 +32,11 @@
         </a>
         <mat-card-content>
           <p class="text-muted text-truncate" title="{{ image.folderName }}/{{ image.fileName }}">{{ image.folderName }}/{{ image.fileName }}</p>
-          <div *ngIf="image.tags && image.tags.length > 0">
-            <span *ngFor="let tag of image.tags" class="badge bg-info text-dark me-1">{{tag}}</span>
+          <div *ngIf="image.tags && image.tags.length > 0" 
+               class="tags-wrapper tags-fade-container">
+            <div class="tags-scroll-content">
+              <span *ngFor="let tag of image.tags" class="badge bg-info text-dark me-1">{{tag}}</span>
+            </div>
           </div>
         </mat-card-content>
       </mat-card>
@@ -57,7 +53,10 @@
     <p *ngIf="initialLoadFailed">Failed to load images. Please try again later or check the browser console for errors.</p>
     <p *ngIf="!initialLoadFailed">No images found for the selected criteria. Try adjusting your filters or ensure images are available on the server.</p>
   </div>
-  <div *ngIf="allLoaded && images.length > 0 && !isLoading" class="alert alert-success text-center mt-3">
-    All images loaded.
+  <div *ngIf="allLoaded && images.length > 0 && !isLoading" class="text-center text-muted mt-3">
+    <p>All images loaded.</p>
   </div>
+
+  <!-- Scroll Trigger Element -->
+  <div #scrollTrigger class="scroll-trigger"></div>
 </div>

@@ -1,4 +1,41 @@
 .image-card img {
   height: 200px;
-  object-fit: cover; /* Ensure images cover the area */
+  width: 100%;
+  object-fit: contain;
+}
+
+.scroll-trigger {
+  height: 1px;
+  margin-top: 20px;
+}
+
+.tags-wrapper {
+  position: relative;
+  margin-top: 5px;
+}
+
+.tags-fade-container {
+  max-height: 40px;
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  transition: max-height 0.3s ease-out;
+}
+
+.tags-fade-container:hover {
+  max-height: 150px;
+  mask-image: none;
+  -webkit-mask-image: none;
+  overflow: auto;
+}
+
+.tags-scroll-content {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Adjust badge margin for better wrapping */
+.tags-scroll-content .badge {
+  margin-bottom: 4px;
 }
