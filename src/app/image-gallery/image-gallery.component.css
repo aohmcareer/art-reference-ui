@@ -1,4 +1,23 @@
 .image-card img {
   height: 200px;
-  object-fit: cover; /* Ensure images cover the area */
+  width: 100%;
+  object-fit: contain;
+}
+
+.scroll-trigger {
+  height: 1px;
+  margin-top: 20px;
+}
+
+.tags-wrapper {
+  max-height: 40px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 5px;
+}
+
+
+/* Adjust badge margin for better wrapping */
+.tags-wrapper .badge {
+  margin-bottom: 4px;
 }
