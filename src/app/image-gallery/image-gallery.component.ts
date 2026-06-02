@@ -1,16 +1,19 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, NgZone, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, NgZone, ChangeDetectorRef, Inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { takeUntil, finalize } from 'rxjs/operators';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { ApiService, ImageInfo, FolderInfo } from '../services/api.service';
+// Import shared models first, then API service
+import { ImageInfo, FolderInfo, PaginatedResult } from '../core/models/image-info.model';
+import { ApiService } from '../services/api.service';
 import { TagFilterComponent } from '../tag-filter/tag-filter.component';
+import { ImageLazyDirective } from '../shared/directives/image-lazy.directive';
 
 @Component({
   selector: 'app-image-gallery',
@@ -23,10 +26,12 @@ import { TagFilterComponent } from '../tag-filter/tag-filter.component';
     MatSelectModule,
     MatCardModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    ImageLazyDirective
   ],
   templateUrl: './image-gallery.component.html',
-  styleUrls: ['./image-gallery.component.css']
+  styleUrls: ['./image-gallery.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
   images: ImageInfo[] = [];
@@ -39,6 +44,7 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private destroy$ = new Subject<void>();
   private intersectionObserver: IntersectionObserver | undefined;
+  private searchSubject = new Subject<string>();
 
   @ViewChild('scrollTrigger') scrollTrigger!: ElementRef;
 
@@ -56,6 +62,14 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.loadAvailableFolders();
     this.loadImages();
+    
+    // Debounced search for folder selection
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.filterFolders(searchTerm);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -67,10 +81,16 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
   loadAvailableFolders(): void {
      this.apiService.getFolders(this.activeTags.length > 0 ? this.activeTags : undefined)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(folders => {
-        this.availableFolders = folders.sort((a,b) => a.name.localeCompare(b.name));
-        if (this.selectedFolder && !this.availableFolders.find(f => f.name === this.selectedFolder)) {
-            this.selectedFolder = "";
+      .subscribe({
+        next: folders => {
+          this.availableFolders = folders.sort((a, b) => a.name.localeCompare(b.name));
+          if (this.selectedFolder && !this.availableFolders.find(f => f.name === this.selectedFolder)) {
+              this.selectedFolder = "";
+          }
+          this.cdr.markForCheck();
+        },
+        error: err => {
+          console.error('Error loading folders:', err);
         }
       });
   }
@@ -89,7 +109,7 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.initialLoadDone = false;
     this.initialLoadFailed = false;
     this.isLoading = false;
-    // Re-observe the trigger after resetting images
+    
     if (isPlatformBrowser(this.platformId) && this.intersectionObserver) {
       this.intersectionObserver.unobserve(this.scrollTrigger.nativeElement);
       this.intersectionObserver.observe(this.scrollTrigger.nativeElement);
@@ -101,9 +121,11 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.isLoading || this.allLoaded) {
       return;
     }
+    
     this.isLoading = true;
+    
     if (this.currentPage === 1) {
-        this.initialLoadFailed = false; // Reset failed flag on new first load attempt
+        this.initialLoadFailed = false;
     }
 
     this.apiService.getGalleryImages(
@@ -112,12 +134,18 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
         this.selectedFolder || undefined,
         this.activeTags.length > 0 ? this.activeTags : undefined
       )
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      )
       .subscribe({
         next: result => {
-          if (result.items.length > 0) {
-            // Filter out duplicates just in case (e.g., rapid scrolling/re-filtering)
-            const processedNewImages: ImageInfo[] = result.items.filter(newItem =>
+          if (result.items && result.items.length > 0) {
+            // Filter out duplicates
+            const processedNewImages = result.items?.filter((newItem: ImageInfo) =>
                 !this.images.some(existingItem =>
                     existingItem.url === newItem.url && existingItem.folderName === newItem.folderName
                 )
@@ -126,32 +154,30 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
             this.images = [...this.images, ...processedNewImages];
             this.currentPage++;
           }
-          // Check if all images are loaded
-          // Only set allLoaded to true if the current API call returns no items.
-          if (result.items.length === 0) {
+          
+          if (result.items?.length === 0) {
             this.allLoaded = true;
-            // If all loaded, stop observing
             if (isPlatformBrowser(this.platformId) && this.intersectionObserver) {
               this.intersectionObserver.unobserve(this.scrollTrigger.nativeElement);
             }
           }
-          this.cdr.detectChanges();
-          this.isLoading = false;
+          
           this.initialLoadDone = true;
-          // After initial load (page 2 completed), if the page is now scrollable, ensure observer is active
-          // This helps if the initial load didn't fill the screen, but subsequent loads do.
+          
+          // After initial load, re-observe if page is scrollable
           if (this.currentPage === 2 && isPlatformBrowser(this.platformId) && this.intersectionObserver && this.scrollTrigger) {
             this.intersectionObserver.unobserve(this.scrollTrigger.nativeElement);
             this.intersectionObserver.observe(this.scrollTrigger.nativeElement);
           }
+          
+          this.cdr.markForCheck();
         }, 
         error: err => {
           console.error('Error loading gallery images:', err);
-          this.isLoading = false;
-          this.initialLoadDone = true;
           if (this.currentPage === 1) {
               this.initialLoadFailed = true;
           }
+          this.cdr.markForCheck();
         }
       });
   }
@@ -181,6 +207,11 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  // TrackBy function for *ngFor to improve performance
+  trackByImage(index: number, image: ImageInfo): string {
+    return image.url;
+  }
+
   onImageError(event: Event, image: ImageInfo) {
     console.warn(`Failed to load image: ${this.apiService.imageServerBaseUrl + image.url}`);
     const imgElement = event.target as HTMLImageElement;
@@ -191,6 +222,22 @@ export class ImageGalleryComponent implements OnInit, OnDestroy, AfterViewInit {
     if (isPlatformBrowser(this.platformId) && this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
+    this.searchSubject.complete();
     this.destroy$.complete();
+  }
+
+  // Folder search filter
+  onFolderSearch(searchTerm: string): void {
+    this.searchSubject.next(searchTerm);
+  }
+
+  private filterFolders(searchTerm: string): void {
+    if (!searchTerm) {
+      return;
+    }
+    
+    const lowerSearch = searchTerm.toLowerCase();
+    // This would filter the folders UI, not implemented in template yet
+    console.log('Filtering folders by:', searchTerm);
   }
 }

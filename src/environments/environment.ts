@@ -3,9 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 // For production builds, this would point to your deployed API.
-// For now, it can be a placeholder or the same as development if you only run locally.
+// For development, points to local API on port 5000
 export const environment = {
-  production: true,
-  apiUrl: 'https://localhost:5001/api', // Placeholder for actual production
+  production: false,
+  apiUrl: 'http://localhost:5000/api',
   baseHref: '/'
 };
